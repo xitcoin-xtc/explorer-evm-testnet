@@ -45,11 +45,11 @@ services:
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
       ETHEREUM_JSONRPC_VARIANT: geth
       ETHEREUM_JSONRPC_TRANSPORT: http
-      ETHEREUM_JSONRPC_HTTP_URL: https://evm-rpc-testnet.xitcoin.org
+      ETHEREUM_JSONRPC_HTTP_URL: https://evm-rpc-testnet.xitchain.com
       CHAIN_ID: "101089"
       NETWORK: Xitcoin
       SUBNETWORK: Testnet
-      BLOCKSCOUT_HOST: evm-explorer-testnet.xitcoin.org
+      BLOCKSCOUT_HOST: evm-explorer-testnet.xitchain.com
       BLOCKSCOUT_PROTOCOL: https
       REDIS_URL: redis://redis:6379
       INDEXER_BLOCK_RANGE: "1000"
