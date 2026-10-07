@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://evm-explorer-testnet.xitcoin.org/api/v2",
+      "url": "https://evm-explorer-testnet.xitchain.com/api/v2",
       "description": "Xitcoin EVM testnet"
     }
   ],
