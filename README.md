@@ -10,8 +10,8 @@ Reproducible Blockscout configuration and Xitcoin branding for the public EVM ex
 | EVM chain ID | `101089` |
 | Native currency | XTC |
 | Decimals | 18 |
-| Explorer | https://evm-explorer-testnet.xitcoin.org/ |
-| JSON-RPC | https://evm-rpc-testnet.xitcoin.org/ |
+| Explorer | https://evm-explorer-testnet.xitchain.com/ |
+| JSON-RPC | https://evm-rpc-testnet.xitchain.com/ |
 
 Cosmos-style and EVM-style addresses coexist on Xitcoin Testnet. This does not imply a bridge or a second token: XTC is the native asset exposed through both interfaces.
 
