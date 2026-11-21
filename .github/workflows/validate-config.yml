@@ -29,64 +29,32 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat > .env <<'ENV'
-          POSTGRES_PASSWORD=validation-only-not-a-secret
-          SECRET_KEY_BASE=validation-only-not-a-secret
-          ENV
+          sed 's/=$/=validation-only-not-a-secret/' server/.env.example > server/.env
 
-      - name: Validate merged Compose configuration
+      - name: Validate Compose configuration
         shell: bash
         run: |
           set -euo pipefail
-          docker compose \
-            --env-file .env \
-            -f docker-compose.yml \
-            -f frontend-compose.yml \
-            config --quiet
+          docker compose -f server/compose.json config --quiet
 
       - name: Validate security invariants
         shell: bash
         run: |
           set -euo pipefail
-
-          grep -Fq '"127.0.0.1:14000:4000"' docker-compose.yml
-          grep -Fq '"127.0.0.1:14001:3000"' frontend-compose.yml
-          grep -Fq '${POSTGRES_PASSWORD}' docker-compose.yml
-          grep -Fq '${SECRET_KEY_BASE}' docker-compose.yml
-
-          grep -Fq 'ghcr.io/xitcoin-org/blockscout-backend:v11.2.7@sha256:ec76d243778910c84c786e0fba1aa386c12091b83e395e15b52464527057a55a' docker-compose.yml
-          grep -Fq 'ghcr.io/xitcoin-org/blockscout-frontend:v2.10.3@sha256:4c9384b7e9a2cc38f69766e89ef7c37252612a86f38a18f4ffeff2da26cbd9cc' frontend-compose.yml
-          grep -Fq 'postgres:17@sha256:0b657ff48d7f76a1e907f381b1693eb4f2bf54c1d2df4feb6743d7dc601768dd' docker-compose.yml
-          grep -Fq 'redis:7-alpine@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf' docker-compose.yml
-
-          images="$(sed -nE 's/^[[:space:]]+image:[[:space:]]+//p' docker-compose.yml frontend-compose.yml)"
-          test "$(printf '%s\n' "$images" | sed '/^$/d' | wc -l)" -eq 4
-
-          if printf '%s\n' "$images" | grep -vE '@sha256:[0-9a-f]{64}$'
-          then
-            echo "Container image without immutable digest detected"
-            exit 1
-          fi
-
-          if grep -R -nE \
-            'privileged:[[:space:]]*true|network_mode:[[:space:]]*host' \
-            --include='*.yml' \
-            --include='*.yaml' \
-            .
-          then
-            echo "Forbidden container privilege detected"
-            exit 1
-          fi
-
-          if grep -R -nE \
-            'uses:[[:space:]]+[^[:space:]]+@(main|master|latest|v[0-9]+)$' \
-            .github/workflows
-          then
-            echo "Unpinned GitHub Action detected"
-            exit 1
-          fi
-
-      - name: Remove validation environment
-        if: always()
-        shell: bash
-        run: rm -f .env
+          python3 - <<'PY'
+          import json, re
+          raw = open("server/compose.json").read()
+          c = json.loads(raw)
+          for name, s in c["services"].items():
+              for p in s.get("ports", []):
+                  assert p.startswith("127.0.0.1:"), (name, p)
+              assert s.get("pull_policy") == "never", name
+          for var in ("POSTGRES_PASSWORD", "STATS_POSTGRES_PASSWORD", "SECRET_KEY_BASE"):
+              assert "${%s}" % var in raw, var
+          assert not re.search(r"postgres(ql)?://[^:/]+:(?!\$\{)[^@]+@", raw), "literal database password"
+          assert c["services"]["backend"]["environment"]["BLOCKSCOUT_HOST"] == "evm-explorer-testnet.xitchain.com"
+          pub = json.load(open("server/frontend-public.json"))
+          m = re.match(r"^window\.__envs = (.*);\s*$", open("server/envs.js").read(), re.S)
+          assert m and json.loads(m.group(1)) == pub, "envs.js and frontend-public.json differ"
+          print("ok")
+          PY

@@ -1,0 +1,22 @@
+--- a/Makefile
++++ b/Makefile
+@@ -4,7 +4,7 @@
+ 	@./build_deps.sh
+ 
+ compile_nif: get_deps
+-	@make V=0 -C c_src -j 8
++	@make V=0 -C c_src -j 1
+ 
+ clean_nif:
+ 	@make -C c_src clean
+--- a/build_deps.sh
++++ b/build_deps.sh
+@@ -5,7 +5,7 @@
+ DEPS_DIR="_build/deps"
+ OS="$(uname -s)"
+ KERNEL=$(echo $(lsb_release -ds 2>/dev/null || cat /etc/*release 2>/dev/null | head -n1 | awk '{print $1;}') | awk '{print $1;}')
+-CPUS="$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)"
++CPUS=1 # V7 local resource bound
+ 
+ # Zstandard configuration
+ # https://github.com/facebook/zstd.git

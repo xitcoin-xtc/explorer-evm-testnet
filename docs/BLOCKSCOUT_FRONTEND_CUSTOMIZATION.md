@@ -1,17 +1,12 @@
-# Blockscout Frontend Configuration
+# Blockscout frontend configuration
 
-The Xitcoin explorer uses Blockscout's supported network-logo, network-icon and favicon environment variables.
+The frontend reads its public settings from two files in [`server/`](../server/), mounted read-only into the container:
 
-Canonical artwork:
+- `frontend-public.json`: used by the server side;
+- `envs.js`: the same values for the browser (`window.__envs`).
 
-- network logo: `assets/png/standard/xitcoin-symbol-500.png`;
-- network icon: `assets/png/standard/xitcoin-symbol-200.png`;
-- source repository: https://github.com/xitcoin-org/brand.
+They must contain exactly the same keys and values: `launch-frontend.cjs` refuses to start if they differ. Change both together, then recreate the `frontend` service.
 
-No source patch is required for token branding. This keeps frontend upgrades aligned with upstream Blockscout and avoids maintaining version-specific wordmark changes.
+Main settings: network name `Xitcoin Testnet`, chain ID `101089`, currency XTC (18 decimals), testnet flag, API and app host `evm-explorer-testnet.xitchain.com`, stats service under `/stats-service`, MetaMask as wallet, no ads, no gas tracker.
 
-Validate the resolved frontend configuration before building or deploying:
-
-```bash
-docker compose -f frontend-compose.yml config
-```
+No source patch is applied for branding. Image-level fixes (icon sprite, missing module link) are listed in [`BLOCKSCOUT_IMAGE_PROVENANCE.md`](BLOCKSCOUT_IMAGE_PROVENANCE.md).

@@ -1,0 +1,310 @@
+{
+  "name": "xitchain-evm-explorer",
+  "services": {
+    "db": {
+      "image": "postgres@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449",
+      "pull_policy": "never",
+      "restart": "unless-stopped",
+      "environment": {
+        "POSTGRES_DB": "xitcoin_blockscout",
+        "POSTGRES_USER": "xitcoin_blockscout",
+        "POSTGRES_PASSWORD": "${POSTGRES_PASSWORD}"
+      },
+      "volumes": [
+        "backend_db:/var/lib/postgresql/data"
+      ],
+      "networks": [
+        "data"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "pg_isready -U xitcoin_blockscout -d xitcoin_blockscout"
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 18
+      },
+      "labels": {
+        "xitcoin.mission": "20260913T0911"
+      },
+      "cpus": 0.75,
+      "mem_limit": "1g",
+      "pids_limit": 256,
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "2"
+        }
+      }
+    },
+    "stats-db": {
+      "image": "postgres@sha256:e38411452a464af89e5adadb8d223bf53b898d47d6ef918b2d58c08707350449",
+      "pull_policy": "never",
+      "restart": "unless-stopped",
+      "environment": {
+        "POSTGRES_DB": "stats",
+        "POSTGRES_USER": "stats",
+        "POSTGRES_PASSWORD": "${STATS_POSTGRES_PASSWORD}"
+      },
+      "volumes": [
+        "stats_db:/var/lib/postgresql/data"
+      ],
+      "networks": [
+        "data"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "pg_isready -U stats -d stats"
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 18
+      },
+      "labels": {
+        "xitcoin.mission": "20260913T0911"
+      },
+      "cpus": 0.25,
+      "mem_limit": "512m",
+      "pids_limit": 256,
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "2"
+        }
+      }
+    },
+    "redis": {
+      "image": "redis@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2",
+      "pull_policy": "never",
+      "restart": "unless-stopped",
+      "command": [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory",
+        "256mb",
+        "--maxmemory-policy",
+        "noeviction"
+      ],
+      "volumes": [
+        "redis_data:/data"
+      ],
+      "networks": [
+        "data"
+      ],
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "redis-cli",
+          "ping"
+        ],
+        "interval": "10s",
+        "timeout": "5s",
+        "retries": 10
+      },
+      "labels": {
+        "xitcoin.mission": "20260913T0911"
+      },
+      "cpus": 0.25,
+      "mem_limit": "320m",
+      "pids_limit": 256,
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "2"
+        }
+      }
+    },
+    "backend": {
+      "image": "sha256:317c5a6b41b61a9c1379d4d74ca845565eb66c19dc8941b99cfff6b4e8add8f0",
+      "pull_policy": "never",
+      "restart": "unless-stopped",
+      "command": [
+        "bin/blockscout",
+        "start"
+      ],
+      "environment": {
+        "ETHEREUM_JSONRPC_VARIANT": "geth",
+        "NETWORK": "Xitcoin",
+        "INDEXER_DISABLE_INTERNAL_TRANSACTIONS_FETCHER": "true",
+        "SUBNETWORK": "Testnet",
+        "BLOCKSCOUT_PROTOCOL": "https",
+        "DATABASE_URL": "postgresql://xitcoin_blockscout:${POSTGRES_PASSWORD}@db:5432/xitcoin_blockscout",
+        "BLOCKSCOUT_HOST": "evm-explorer-testnet.xitchain.com",
+        "ETHEREUM_JSONRPC_HTTP_URL": "http://176.31.27.193:40545",
+        "FIRST_BLOCK": "1",
+        "MARKET_HISTORY_FETCHER_ENABLED": "false",
+        "ECTO_USE_SSL": "false",
+        "SECRET_KEY_BASE": "${SECRET_KEY_BASE}",
+        "DISABLE_EXCHANGE_RATES": "true",
+        "POOL_SIZE": "5",
+        "INDEXER_DISABLE_PENDING_TRANSACTIONS_FETCHER": "true",
+        "ETHEREUM_JSONRPC_TRANSPORT": "http",
+        "ECTO_SSL_MODE": "disable",
+        "CHAIN_ID": "101089",
+        "INDEXER_BLOCK_RANGE": "1000",
+        "POOL_SIZE_API": "5",
+        "REDIS_URL": "redis://redis:6379",
+        "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "DISABLE_WEBAPP": "true",
+        "ADMIN_PANEL_ENABLED": "false",
+        "DISABLE_API": "",
+        "API_V1_READ_METHODS_DISABLED": "",
+        "API_V1_WRITE_METHODS_DISABLED": "",
+        "CHAIN_TYPE": "",
+        "BRIDGED_TOKENS_ENABLED": "",
+        "API_GRAPHQL_MAX_COMPLEXITY": "",
+        "MUD_INDEXER_ENABLED": "",
+        "RELEASE_VERSION": "11.2.8",
+        "BLOCKSCOUT_VERSION": "11.2.8",
+        "DATABASE_READ_ONLY_API_URL": "postgresql://xitcoin_blockscout:${POSTGRES_PASSWORD}@db:5432/xitcoin_blockscout",
+        "ACCOUNT_REDIS_URL": "redis://redis:6379",
+        "DISABLE_INDEXER": "false",
+        "APPLICATION_MODE": "all",
+        "ERL_FLAGS": "+S 2:2",
+        "CACHE_BLOCK_COUNT_PERIOD": "60s",
+        "CACHE_TXS_COUNT_PERIOD": "60s",
+        "CACHE_ADDRESS_COUNT_PERIOD": "60s"
+      },
+      "depends_on": {
+        "db": {
+          "condition": "service_healthy"
+        },
+        "redis": {
+          "condition": "service_healthy"
+        }
+      },
+      "networks": [
+        "data",
+        "egress"
+      ],
+      "labels": {
+        "xitcoin.mission": "20260913T0911"
+      },
+      "cpus": 1.5,
+      "mem_limit": "3g",
+      "pids_limit": 256,
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "2"
+        }
+      },
+      "ports": [
+        "127.0.0.1:15100:4000"
+      ]
+    },
+    "stats": {
+      "image": "sha256:b99094d53dd04e3a3f9052f9748a68f8f1fcfa337fe79da5b6212978b8feb276",
+      "platform": "linux/amd64",
+      "pull_policy": "never",
+      "restart": "unless-stopped",
+      "environment": {
+        "STATS__CONFIG": "/config/stats.json",
+        "STATS__DB_URL": "postgresql://stats:${STATS_POSTGRES_PASSWORD}@stats-db:5432/stats",
+        "STATS__INDEXER_DB_URL": "postgresql://stats_reader:${POSTGRES_PASSWORD}@db:5432/xitcoin_blockscout",
+        "STATS__BLOCKSCOUT_API_URL": "http://backend:4000",
+        "STATS__RUN_MIGRATIONS": "true"
+      },
+      "volumes": [
+        "./stats.json:/config/stats.json:ro",
+        "./charts.json:/config/charts.json:ro",
+        "./layout.json:/config/layout.json:ro",
+        "./update-groups.json:/config/update-groups.json:ro"
+      ],
+      "depends_on": {
+        "stats-db": {
+          "condition": "service_healthy"
+        },
+        "backend": {
+          "condition": "service_started"
+        }
+      },
+      "networks": [
+        "data",
+        "egress"
+      ],
+      "labels": {
+        "xitcoin.mission": "20260913T0911"
+      },
+      "cpus": 0.5,
+      "mem_limit": "1g",
+      "pids_limit": 256,
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "2"
+        }
+      },
+      "ports": [
+        "127.0.0.1:15002:8050"
+      ]
+    },
+    "frontend": {
+      "image": "xitcoin-private/frontend:20260913T0911-fix1",
+      "pull_policy": "never",
+      "restart": "unless-stopped",
+      "environment": {
+        "NODE_ENV": "production",
+        "HOSTNAME": "0.0.0.0",
+        "PORT": "3000"
+      },
+      "networks": [
+        "data",
+        "egress"
+      ],
+      "volumes": [
+        "./frontend-public.json:/app/frontend-public.json:ro",
+        "./envs.js:/app/public/assets/envs.js:ro"
+      ],
+      "entrypoint": [
+        "node",
+        "/app/launch-frontend.cjs"
+      ],
+      "labels": {
+        "xitcoin.mission": "20260913T0911"
+      },
+      "cpus": 0.5,
+      "mem_limit": "1g",
+      "pids_limit": 256,
+      "logging": {
+        "driver": "json-file",
+        "options": {
+          "max-size": "10m",
+          "max-file": "2"
+        }
+      },
+      "ports": [
+        "127.0.0.1:15101:3000"
+      ]
+    }
+  },
+  "networks": {
+    "data": {
+      "internal": true,
+      "name": "xitchain-evm-explorer_internal"
+    },
+    "egress": {
+      "name": "xitchain-evm-explorer_egress",
+      "internal": false
+    }
+  },
+  "volumes": {
+    "backend_db": {
+      "name": "xitchain-evm-explorer_backend_db"
+    },
+    "stats_db": {
+      "name": "xitchain-evm-explorer_stats_db"
+    },
+    "redis_data": {
+      "name": "xitchain-evm-explorer_redis_data"
+    }
+  }
+}
