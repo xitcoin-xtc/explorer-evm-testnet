@@ -1,0 +1,10 @@
+[
+  {
+    "file": "Makefile",
+    "qualified_sha256": "0b77ac10940ef07f9986c3fe656c95a02aed30d3135d21a689182c3c50e76cc6"
+  },
+  {
+    "file": "build_deps.sh",
+    "qualified_sha256": "c2217f8f0b8b99bfdaf2f74650ff19cf0882e0de54ca39feaa7672ef6c18ae8d"
+  }
+]

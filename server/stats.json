@@ -1,0 +1,48 @@
+{
+  "mode": "blockscout",
+  "create_database": false,
+  "run_migrations": false,
+  "ignore_blockscout_api_absence": false,
+  "force_update_on_start": false,
+  "default_schedule": "0 * * * * * *",
+  "charts_config": "/config/charts.json",
+  "layout_config": "/config/layout.json",
+  "update_groups_config": "/config/update-groups.json",
+  "server": {
+    "http": {
+      "enabled": true,
+      "addr": "0.0.0.0:8050",
+      "cors": {
+        "enabled": true,
+        "allowed_origin": "https://evm-explorer-testnet.xitchain.com",
+        "allowed_methods": "GET,HEAD,OPTIONS",
+        "max_age": 3600,
+        "allowed_credentials": false
+      }
+    },
+    "grpc": {
+      "enabled": false
+    }
+  },
+  "metrics": {
+    "enabled": false
+  },
+  "jaeger": {
+    "enabled": false
+  },
+  "conditional_start": {
+    "blocks_ratio": {
+      "enabled": true,
+      "threshold": 0.98
+    },
+    "internal_transactions_ratio": {
+      "enabled": false
+    },
+    "user_ops_past_indexing_finished": {
+      "enabled": false
+    },
+    "zetachain_indexed_until_today": {
+      "enabled": false
+    }
+  }
+}
