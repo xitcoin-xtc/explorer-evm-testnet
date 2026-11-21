@@ -262,7 +262,9 @@
       ],
       "volumes": [
         "./frontend-public.json:/app/frontend-public.json:ro",
-        "./envs.js:/app/public/assets/envs.js:ro"
+        "./envs.js:/app/public/assets/envs.js:ro",
+        "./network_logo.svg:/app/public/assets/configs/network_logo.svg:ro",
+        "./network_logo.svg:/app/public/assets/configs/network_icon.svg:ro"
       ],
       "entrypoint": [
         "node",

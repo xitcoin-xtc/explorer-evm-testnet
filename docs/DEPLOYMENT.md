@@ -5,7 +5,7 @@
 - Server: `kcalb-platform-1`.
 - Folder: `/srv/kcalb/applications/xitchain-evm-explorer` (mirrored in [`server/`](../server/)).
 - Docker Compose project: `xitchain-evm-explorer`; volumes `xitchain-evm-explorer_backend_db`, `xitchain-evm-explorer_stats_db`, `xitchain-evm-explorer_redis_data`; networks `xitchain-evm-explorer_internal` (no internet) and `xitchain-evm-explorer_egress`.
-- Ports, all on `127.0.0.1`: backend API `15100`, frontend `15101`, stats `15002`. Nginx on the host publishes `https://evm-explorer-testnet.xitchain.com` (stats under `/stats-service`).
+- Ports, all on `127.0.0.1`: backend API `15100`, frontend `15101`, stats `15002`. Nginx on the host publishes `https://evm-explorer-testnet.xitchain.com` (stats under `/stats-service`); it serves `/assets/envs.js` with `Cache-Control: no-cache` so a configuration change shows at once.
 - The backend indexes the chain from the testnet sentry node's EVM JSON-RPC.
 
 ## Services
